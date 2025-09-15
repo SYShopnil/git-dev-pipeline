@@ -1,0 +1,30 @@
+name: Build & Push (dev)
+
+on:
+  push:
+    branches: ['master']
+
+env:
+  IMAGE_NAME: ${{ vars.PROD_IMAGE_NAME || 'ghapfy-gateway' }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Docker image
+        run: |
+          DATE_NOW=$(date +%s)
+          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{env.IMAGE_NAME}}
+          docker build -t $IMAGE:dev-$DATE_NOW -t $IMAGE:latest .
+          docker push $IMAGE:dev-$DATE_NOW
+          docker push $IMAGE:latest

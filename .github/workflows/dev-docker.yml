@@ -4,6 +4,9 @@ on:
   push:
     branches: ['dev']
 
+env:
+  IMAGE_NAME: ${{ vars.DEV_IMAGE_NAME || 'ghapfy-gateway' }}
+
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -21,7 +24,7 @@ jobs:
       - name: Build & Push Docker image
         run: |
           DATE_NOW=$(date +%s)
-          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/demo-git-action-dev-pipeline
+          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/${{env.IMAGE_NAME}}
           docker build -t $IMAGE:dev-$DATE_NOW -t $IMAGE:latest .
           docker push $IMAGE:dev-$DATE_NOW
           docker push $IMAGE:latest
